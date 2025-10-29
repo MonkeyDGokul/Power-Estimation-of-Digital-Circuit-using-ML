@@ -1,80 +1,102 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPRegressor
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+ import streamlit as st
+ import pandas as pd
+ import numpy as np
+ import matplotlib . pyplot as plt
+ from sklearn.model selection import train  test split
+ from sklearn.linear model import LinearRegression , Lasso , Ridge
+ from sklearn.ensemble import RandomForestRegressor , GradientBoostingRegressor
+ from sklearn.svm import SVR
+ from sklearn.neural network import MLPRegressor
+ from xgboost import XGBRegressor
+ from lightgbm import LGBMRegressor
+ from catboost import CatBoostRegressor
+ from sklearn.metrics import mean _absolute_error, mean_squared_error, r2_score
+ import random
 
-# Title of the app
-st.title("Power Consumption Prediction App")
+ # Title of the app
+ st.title ("Power Consumption Prediction App")
+ # File uploader
+ uploaded_file = st . file uploader ("Upload your dataset (CSV file )" , type=["csv"])
+ # if uploaded_file is not None:
+ df = pd.read
+ csv ( uploaded file )
+ st.write ("Sample Data")
+ st.write (df.head())
 
-# File uploader
-uploaded_file = st.file_uploader("Upload your dataset (CSV file)", type=["csv"])
+# Preprocessing : Remove ’circuit ’ and existing ’ID’ columns , then add new random IDs
+ df . drop(columns=[ 'circuit' , 'ID' ] , inplace=True , errors= 'ignore')
+ df . insert (0 , 'ID' , [random. randint(1000, 9999) for in range(len(df)) ])
 
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
-    st.write("### Sample Data")
-    st.write(df.head())
-    
-    if "Power_total(nW)" not in df.columns:
-        st.error("Dataset must contain 'Power_total(nW)' column as target variable")
-    else:
-        # Remove the first column (categorical identifier)
-        df = df.iloc[:, 1:]
-        
-        # Prepare data
-        X = df.drop(columns=["Power_total(nW)"])
-        y = df["Power_total(nW)"]
+ # Check required columns
+ required_cols = ["Power total(nW)", "Power dynamic(Switching ) (nW)"]
+ if not all(col in df.columns for col in required_cols):
+ st.error ("Dataset must contain 'Power total(nW) ' and ' Power dynamic(Switching)(nW) ' columns as target 
+variables")
 
-        # Split dataset
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Feature scaling
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
+ else :
+ # Prepare data (exclude ID column from features)
+ X = df.drop(columns=required_cols + ['ID'])
+ y_total = df["Power total(nW)"]
+ y_dynamic = df["Power dynamic(Switching)(nW)"]
+ # Single train−test split for both targets
+ X_train , X_test , y_train, y_test_total = train_test_split ( X, y_total , test size =0.2, random state=42 )
+ # Use same split indices for dynamic target
+ y_train_dynamic = y_dynamic.iloc [ X_train.index ]
+ test dynamic = y dynamic.iloc[ X_test.index ]
+ 
+# Model selection
 
-        # Train the MLP Regressor
-        if 'model' not in st.session_state:
-            st.session_state.model = MLPRegressor(hidden_layer_sizes=(64, 32), max_iter=1000, random_state=42)
+model_name = st.selectbox(
+ 'Choose a model for training',
+ options=[
+  'Linear Regression', 'RandomForest', 'Gradient Boosting',
+ 'MLPRegressor', 'Support Vector Regressor' , 'XGBoost' ,
+ 'Lasso Regression' , 'Ridge Regression' , 'LightGBM' , 'CatBoost'
+ ]
+ )
 
-        if st.button("Train Model"):
-            st.session_state.model.fit(X_train_scaled, y_train)
-            y_pred = st.session_state.model.predict(X_test_scaled)
-            
-            # Performance metrics
-            mae = mean_absolute_error(y_test, y_pred)
-            mse = mean_squared_error(y_test, y_pred)
-            r2 = r2_score(y_test, y_pred)
-            
-            st.write("### Model Performance")
-            st.write(f"*MAE:* {mae:.2f}")
-            st.write(f"*MSE:* {mse:.2f}")
-            st.write(f"*R² Score:* {r2:.4f}")
-            
-            # Plot results
-            fig, ax = plt.subplots()
-            ax.plot(y_test.values, label='Actual', marker='o', linestyle='-', color='blue')
-            ax.plot(y_pred, label='Predicted', marker='x', linestyle='--', color='red')
-            ax.set_xlabel("Test Sample Index")
-            ax.set_ylabel("Power_total(nW)")
-            ax.set_title("Actual vs Predicted Values")
-            ax.legend()
-            st.pyplot(fig)
+ if st.button("Train Model") :
+ # Initialize models for both targets
+ models = {
+ 'Linear Regression' : (LinearRegression() ,LinearRegression()),
+ 'RandomForest' : (RandomForestRegressor( n_estimators=100, random_state=42),RandomForestRegressor( n_estimators=100, random_state=42)),
+ 'Gradient Boosting' : (GradientBoostingRegressor( n_estimators=100, random_state=42) , GradientBoostingRegressor( n_estimators=100, random_state=42)),
+ 'MLPRegressor' : (MLPRegressor( hidden_layer_sizes=(64, 32), max_iter = 1000,  random_state=42) , MLPRegressor( hidden_layer_sizes=(64, 32), max_iter =1000,random_state=42)),
+ 'Support Vector Regressor' : (SVR() , SVR()) ,    
+ 'XGBoost': (XGBRegressor(n_estimators=100, random_state=42) , XGBRegressor( n_estimators=100, random_state=42)) ,
+ 'Lasso Regression' : (Lasso() , Lasso()) ,
+ 'Ridge Regression' : (Ridge() , Ridge()) ,   
+ 'LightGBM' : (LGBMRegressor(n_estimators=100, random_state=42) , LGBMRegressor(n_estimators=100, random_state=42)) ,
+ 'CatBoost' : (CatBoostRegressor(verbose=0, random_state=42),CatBoostRegressor(verbose=0, random_state=42))
+ }
 
-        # Prediction section
-        st.write("### Make a Prediction")
-        user_input = []
-        for col in X.columns:
-            user_input.append(st.number_input(f"Enter {col}", value=float(df[col].mean())))
+model_total ,model_dynamic = models[model_name]
 
-        if st.button("Predict Power Consumption"):
-            if 'model' in st.session_state:
-                user_input = np.array(user_input).reshape(1, -1)
-                user_input_scaled = scaler.transform(user_input)
-                prediction = st.session_state.model.predict(user_input_scaled)
-                st.success(f"Predicted Power Consumption: {prediction[0]:.2f} nW")
-            else:
-                st.error("Model is not trained yet. Please train the model first.")
+# Train models
+ model_total.fit (X_train , y_train_total)
+ model dynamic.fit (X_train , y_train_dynamic)
+
+# Store trained models
+ st.session_state [ 'model_total' ] = model_total
+ st.session_state [ 'model dynamic' ] = model dynamic
+
+# Get predictions
+ y_pred_total = model_total.predict( X_test )
+ y_pred_dynamic = model_dynamic. predict( X_test )
+
+# Performance metrics
+def display_metrics (y true , y pred , label):
+ mae = mean_absolute_error(y true , y pred)
+ mse = mean_squared_error ( y true , y pred)
+ r2 = r2_score (y true , y pred)
+ st.write ( f"###{label}Model Performance")
+ st.write ( f"∗∗Mean Absolute Error (MAE):∗∗ {mae : . 2f}")
+ st.write ( f"∗∗Mean Squared Error (MSE):∗∗ {mse:.2f }")
+
+display_metrics ( y_test_total , y_pred_total, "Power total" )
+display_metrics ( y_test_dynamic , y_pred_dynamic , "Power dynamic" )
+
+  
+     
+ 
+ 
