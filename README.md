@@ -1,8 +1,8 @@
- Abstract
+# Abstract
  
  Accurate power estimation is essential for optimizing digital circuit design in modern VLSI systems. This study employs machine learning techniques, specifically ridge regression and linear regression models, to predict power consumption based on circuit characteristics. The dataset includes various digital circuits with key parameters such as the number of cells, I/O ports, nets, area, and multiple power metrics, including leakage, internal, net, dynamic switching, and total power. Feature analysis is conducted to identify the most significant contributors to power consumption. The proposed ridge regression-based approach outperforms linear regression by effectively handling multicollinearity and providing more stable predictions. Compared to traditional estimation methods, ridge regression demonstrates high prediction accuracy and computational efficiency, making it a suitable choice for realtime power analysis. The results indicate that machine learning, particularly regularized regression techniques, can significantly enhance power-aware design automation, enabling faster and more efficient optimization of digital circuits. The analysis of power prediction accuracy highlights Ridge Regression, Linear Regression, and CatBoost as the top-performing models, achieving exceptional accuracies of 99.998864%, 99.998706%, and 99.993789%, respectively. These models demonstrate outstanding precision in estimating total power, with Ridge Regression showing the lowest absolute error of 1.437 nW, followed closely by Linear Regression and CatBoost. Such high levels of accuracy confirm their reliability and suitability for power estimation tasks, making them ideal choices for applications demanding precise and dependable predictions.
 
- INTRODUCTION
+ # INTRODUCTION
 
   The increasing complexity of modern VLSI circuits has made power consumption a critical design constraint.High power dissipation results in high thermal effects, low device reliability, and high operating cost. Thus, efficient estimation methodologies of power are required in order to enhance the efficiency of the circuit with reduced energy consumption. Mathematical formulation-based and simulation methodologybased power analysis techniques are computationally expensive, although they are accurate, and hence are unfeasible in large circuits. These constraints impose the necessity of methodologies that estimate the power with high accuracy but with low computational overhead.
   
@@ -10,7 +10,7 @@
  
  The cell count in a digital circuit is instrumental in determining the overall power consumption of the circuit. A cell in a circuit is basically a logic building block, and the more the cell count, the more the power consumption during operation. The main causes of this added power consumption are leakage power consumption, internal dissipation of power, and dynamic power consumption due to switching activity. More cell counts translate into more transistor density, which translates into more leakage current that contributes to overall consumption even when the circuit is in an inactive mode. Additionally, internal dissipation of power caused by shortcircuit current as well as capacitive charging within logic cells rises with the increase in cell counts. A significant contributor to the consumption of power is also the circuit area. Power dissipation in circuits is physically affected in many ways, most predominantly through signal transition delay and interconnect power. Larger circuit areas bring with them longer interconnects, with the effect being more parasitic capacitances and more net consumption of power. The incremental boost in terms of power is because of more resistance and capacitance in longer wires, causing more dissipation of energy in signal transitions. Furthermore, as the circuit area is bigger, signal integrity is more difficult to maintain, often mandating more buffering, which is another incremental contributor to consumption of power. Reducing the circuit area through efficient design methodology is thus beneficial in reducing dissipation of power, and is a significant parameter in terms of poweraware optimization.
 
- METHODOLOGY
+# METHODOLOGY
 
  Power estimation in digital circuits needs an efficient and precise methodology because of the growing VLSI design complexities. The current work focuses on examining some machine learning models in order to estimate the power consumption from the circuit parameters. The framework is proposed as indicated in Fig 1.Ultimately, after comparing various models, the final methodology chosen was the application of Ridge Regression due to its better predictive capability. The methodology includes the dataset preprocessing, selection of the model, hyperparameter tuning, and the evaluation such that the framework is optimised and trustworthy in terms of estimating the power. 
 
@@ -18,16 +18,16 @@
 
  Fig 1. Block Diagram of Proposed Model
 
- A. Dataset Description and Preprocessing
+## A. Dataset Description and Preprocessing
 
   The dataset consists of approximately 300 unique digital circuit designs, encompassing a diverse set of architectures including arithmetic blocks, memory circuits, and control units implemented. Each data record contains parameters such as number of cells, number of I/O ports, nets, circuit area, leakage power, internal power, net power, and the target values: total and dynamic power. To ensure consistency and improve model performance, data preprocessing was performed, including missing value handling, normalization, and feature selection. Since raw data can have different scales, normalization techniques such as min-max scaling were applied to standardize feature values. Additionally, outlier detection was conducted to remove anomalies that could impact model training.
 
   The dataset was randomly split as 80% for training, 20% for testing. This diversity ensures the generalizability of the proposed models to a wide range of digital designs.
 
 
-IMPLEMENTATION
+# IMPLEMENTATION
 
- A. Machine Learning Models Evaluation
+## A. Machine Learning Models Evaluation
 
  The flow chart of implementaion is given in Fig.2 and several machine learning models were explored for power prediction, each with its advantages and limitations. The models evaluated include:
 
@@ -55,7 +55,7 @@ IMPLEMENTATION
 
  Fig. 2. Flow Chart of Implementation
 
- B. Model Selection and Parameter Optimization
+## B. Model Selection and Parameter Optimization
 
  To determine the most suitable model, performance metrics such as mean absolute error (MAE), mean squared error (MSE), and R squared (R2) were used for evaluation. Among all models, Ridge Regression exhibited the best predictive accuracy, effectively capturing nonlinear dependencies in power consumption data.
 
@@ -65,7 +65,7 @@ IMPLEMENTATION
 
  Each model’s hyperparameters were optimized using grid and random search strategies. For instance, MLP used two hidden layers with 64 and 32 neurons respectively, ReLU activation, and Adam optimizer with a learning rate of 0.01. Ridge Regression’s alpha was set to 0.05 based on validation performance. This information ensures the study reproducible. Overfitting, a common challenge in machine learning especially with complex models like neural networks and ensemble methods, was addressed through multiple strategies in this study. Ridge Regression inherently uses L2 regularization to control coefficient magnitude and manage multicollinearity. Additionally, k-fold cross-validation was employed to ensure robust generalization across different data splits. Hyperparameter optimization via grid and random search fine-tuned parameters such as regularization strength, network architecture, dropout rates, and tree depths to balance model complexity and fit. Feature selection and normalization reduced noise and irrelevant variability, while dropout layers in neural networks enhanced robustness by randomly deactivating neurons during training. These combined techniques resulted in stable and accurate power predictions, with Ridge Regression notably minimizing overfitting and delivering consistent performance across diverse circuit datasets.
 
-  C. Model Evaluation and Validation
+##  C. Model Evaluation and Validation
 
   The dataset is giving good results for models of Ridge regression and linear regression and it is avoiding overfitting of data which usually happens in MLP for limited dataset and the actual and predicted power plot is given in Fig 3 for some set of data in the dataset. The sophisticated ensemble models like XGBoost and CatBoost tend to underperform because they are designed to capture intricate, non-linear feature interactions and are more prone to overfitting when faced with moderatesized, low-noise datasets dominated by linear patterns. Despite extensive hyperparameter tuning, both XGBoost and CatBoost demonstrated a tendency to slightly overfit the data, resulting in higher mean absolute error (MAE) and mean squared error (MSE) than expected for this regression task. Conversely, Ridge Regression is specifically tailored for scenarios with correlated features and linear dependencies. Its L2 regularization actually suppresses multicollinearity because large coefficient penalties yield stable and highly accurate forecasts. As the structure and characteristics of the dataset well align with the Ridge Regression benefits, this model always generates higher generalizability and predictive ability, obviously as being the most appropriate option in terms of efficienct power estimation during digital circuit design.
 
@@ -75,7 +75,7 @@ IMPLEMENTATION
 
   Fig. 3. Prediction vs Actual plot
 
-  RESULTS
+ # RESULTS
 
   The performance of various machine learning models for power prediction in VLSI circuits was evaluated using a dataset containing power consumption metrics extracted from different circuit designs under varying operational conditions. The models analyzed include linear regression, ridge regression, lasso regression, random forest, gradient boosting, MLP regressor, XGBoost, LightGBM, CatBoost, and support vector regression (SVR). Each model was assessed based on its ability to predict power consumption accurately, using mean absolute error (MAE), mean squared error (MSE), and R² score as evaluation metrics.
    
@@ -110,6 +110,6 @@ signs,” 2022 29th IEEE International Conference on Electronics, Circuits
 
    The Table IV is a comparative study of prediction accuracy of various models for a 4-bit adder circuit. The MAE of the Random Forest model, as documented in earlier research, stands at 2.3, whereas that of the Ridge Regression model, developed in this paper, is much lower at 0.21. This decrease in error proves the higher precision and dependability of the proposed Ridge Regression method in power estimation. The outcome shows that Ridge Regression performs better than Random Forest in this particular task, and thus is a better option when it comes to accurate power estimation in digital circuit design. 
 
-  CONCLUSION
+#  CONCLUSION
 
-   The paper introduced a machine learning-based solution to precise power estimation in VLSI circuits, with an emphasis on the comparison of multiple regression and ensemble learning models. Of the compared models, ridge regression outperformed the others through efficient management of multicollinearity and the presentation of realistic power estimates with little computational overhead. The Ridge Regression model significantly outperforms the Random Forest model in terms of mean absolute error (MAE) with respect to power estimation in digital circuits. For the estimation of powerin a 4-bit adder, Ridge Regression is at an MAE of 0.21 while Random Forest is at an MAE of 2.3, thus leading to an error reduction of around 90.87%. The results reflect the high level of precision and consistency offered by ridge regression in terms of estimating power. The new approach allows for the estimation at early stages, which is vital in optimizing the circuit design while carrying out low power design and early power prediction. The future work will construct hybrid schemes that blend the advantage of Ridge Regression with the capability of deep learning in handling high-order nonlinearities in VLSI circuit information. The new scheme allows for better flexibility and precision in diversified circuit designs. The generalizability is also boosted while overfitting is decreased. The scheme is adaptable even with new features or increased sizes in the datasets. Such hybrid schemes can be implemented effectively in the current GUI, allowing both fast inference and high accuracy in the tasks of power estimation. 
+   This project introduced a machine learning-based solution to precise power estimation in VLSI circuits, with an emphasis on the comparison of multiple regression and ensemble learning models. Of the compared models, ridge regression outperformed the others through efficient management of multicollinearity and the presentation of realistic power estimates with little computational overhead. The Ridge Regression model significantly outperforms the Random Forest model in terms of mean absolute error (MAE) with respect to power estimation in digital circuits. For the estimation of powerin a 4-bit adder, Ridge Regression is at an MAE of 0.21 while Random Forest is at an MAE of 2.3, thus leading to an error reduction of around 90.87%. The results reflect the high level of precision and consistency offered by ridge regression in terms of estimating power. The new approach allows for the estimation at early stages, which is vital in optimizing the circuit design while carrying out low power design and early power prediction. The future work will construct hybrid schemes that blend the advantage of Ridge Regression with the capability of deep learning in handling high-order nonlinearities in VLSI circuit information. The new scheme allows for better flexibility and precision in diversified circuit designs. The generalizability is also boosted while overfitting is decreased. The scheme is adaptable even with new features or increased sizes in the datasets. Such hybrid schemes can be implemented effectively in the current GUI, allowing both fast inference and high accuracy in the tasks of power estimation. 
